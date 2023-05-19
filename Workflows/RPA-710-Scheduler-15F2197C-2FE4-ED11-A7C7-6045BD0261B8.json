@@ -1,0 +1,142 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_uiflow": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gskrpa_shareduiflow_ac275"
+        },
+        "api": {
+          "name": "shared_uiflow"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "gskrpa_sharedoffice365_456b3"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Config_SAPUserName (gskrpa_Config_SAPUserName)": {
+          "defaultValue": "RR858924",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gskrpa_Config_SAPUserName"
+          }
+        },
+        "Config_SAPPassword (gskrpa_Config_SAPPassword)": {
+          "defaultValue": "CguPvG7LzRJjtB972R0SnMbERkgTp362pobgv4iay3nNlPa6iFCiknPNdkN2aDsv",
+          "type": "String",
+          "metadata": {
+            "schemaName": "gskrpa_Config_SAPPassword"
+          }
+        }
+      },
+      "triggers": {
+        "Recurrence": {
+          "recurrence": {
+            "frequency": "Day",
+            "interval": 1,
+            "startTime": "2023-04-26T04:30:00Z"
+          },
+          "metadata": {
+            "operationMetadataId": "79528b98-2fc9-41a8-abb0-3d8607f62ef6"
+          },
+          "type": "Recurrence"
+        }
+      },
+      "actions": {
+        "Run_a_flow_built_with_Power_Automate_for_desktop": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "f7ed5a6f-224d-4661-ac26-417c34d1b455"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_uiflow",
+              "operationId": "RunUIFlow_V2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_uiflow"
+            },
+            "parameters": {
+              "uiFlowId": "b43cfa70-3d2e-4799-a975-14fc80b1f5b0",
+              "runMode": "attended",
+              "runPriority": "normal",
+              "item/Environment": "DEV",
+              "item/Config_SAPPassword": "@parameters('Config_SAPPassword (gskrpa_Config_SAPPassword)')",
+              "item/Config_SAPUsername": "@parameters('Config_SAPUserName (gskrpa_Config_SAPUserName)')"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Send_an_email_(V2)": {
+          "runAfter": {
+            "Run_a_flow_built_with_Power_Automate_for_desktop": [
+              "Failed"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "de570dbc-975c-43b6-ab5b-0dea9c3afab1"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_office365",
+              "operationId": "SendEmailV2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+            },
+            "parameters": {
+              "emailMessage/To": "dipendra.x.shekhawat@gsk.com",
+              "emailMessage/Subject": "Process Failed",
+              "emailMessage/Body": "<p>Process failed</p>",
+              "emailMessage/Importance": "Normal"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Send_an_email_(V2)_2": {
+          "runAfter": {
+            "Run_a_flow_built_with_Power_Automate_for_desktop": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "d1b1507b-c0e1-45e6-a805-e2a26216f544"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_office365",
+              "operationId": "SendEmailV2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+            },
+            "parameters": {
+              "emailMessage/To": "dipendra.x.shekhawat@gsk.com",
+              "emailMessage/Subject": "Success @{outputs('Run_a_flow_built_with_Power_Automate_for_desktop')?['body/NumberOfRecordsFound']}",
+              "emailMessage/Body": "<p>Process completed successfully.<br>\n<br>\nUsers Processed: @{outputs('Run_a_flow_built_with_Power_Automate_for_desktop')?['body/UsersList']}<br>\n<br>\nNumber of records found: @{outputs('Run_a_flow_built_with_Power_Automate_for_desktop')?['body/NumberOfRecordsFound']}</p>",
+              "emailMessage/Importance": "Normal"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

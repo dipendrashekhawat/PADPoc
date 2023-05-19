@@ -1,0 +1,65 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_uiflow": {
+        "runtimeSource": "embedded",
+        "connection": {},
+        "api": {
+          "name": "shared_uiflow"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "Recurrence": {
+          "recurrence": {
+            "frequency": "Day",
+            "interval": 1,
+            "startTime": "2023-04-24T04:30:00Z"
+          },
+          "metadata": {
+            "operationMetadataId": "4772ebb6-8b77-4e75-9785-ac0c113349e1"
+          },
+          "type": "Recurrence"
+        }
+      },
+      "actions": {
+        "Run_a_flow_built_with_Power_Automate_for_desktop": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "292f4246-4408-4dc4-bb3e-f06dd42d9546"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_uiflow",
+              "operationId": "RunUIFlow_V2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_uiflow"
+            },
+            "parameters": {
+              "uiFlowId": "dea96a09-57b3-435b-9ae5-ba4bb5a28171",
+              "runMode": "attended",
+              "runPriority": "normal",
+              "item/Environment": "DEV"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}
